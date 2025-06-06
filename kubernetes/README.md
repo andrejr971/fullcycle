@@ -94,6 +94,16 @@ No Kubernetes, os principais tipos de objetos utilizados para gerenciar aplicaç
 
 O Service do Kubernetes é definido em `k8s/service.yaml` e expõe a aplicação `goserver` dentro do cluster. Ele fornece um endpoint de rede estável, permitindo comunicação interna ou externa com os pods `goserver`, além de realizar balanceamento de carga e descoberta de serviços.
 
+### Tipos de Service no Kubernetes
+
+O Kubernetes oferece diferentes tipos de Service para expor aplicações:
+
+- **ClusterIP**: (padrão) Expõe o serviço em um IP interno do cluster. Só é acessível de dentro do cluster.
+- **NodePort**: Expõe o serviço em uma porta estática em cada nó do cluster, permitindo acesso externo via `<IP-do-nó>:<NodePort>`.
+- **LoadBalancer**: Cria um balanceador de carga externo (em provedores de nuvem compatíveis) e direciona o tráfego para o serviço.
+- **ExternalName**: Mapeia o serviço para um nome DNS externo, sem criar proxy ou IPs no cluster.
+
+
 ### Uso
 
 - **Aplicar a configuração do serviço:**
@@ -112,3 +122,61 @@ O Service do Kubernetes é definido em `k8s/service.yaml` e expõe a aplicação
   kubectl port-forward svc/goserver-service 8000:80
   ```
   Isso permite acessar o serviço `goserver-service` na porta local `8000`, encaminhando o tráfego para a porta `80` do serviço dentro do cluster.
+
+# Documentação do Comando `kubectl proxy --port=9000`
+
+Este comando inicia um proxy local que permite acessar a API do Kubernetes de forma segura a partir do seu computador. O proxy escuta na porta 9000 e encaminha as solicitações para o servidor da API do cluster Kubernetes ao qual você está conectado.
+
+---
+
+## Kubernetes Dashboard (Interface Gráfica)
+
+O Kubernetes possui uma interface web oficial chamada **Kubernetes Dashboard**. Com ela, é possível visualizar e gerenciar recursos do cluster de forma gráfica.
+
+### Como instalar e acessar o Dashboard
+
+1. **Instale o Dashboard:**
+   ```sh
+   kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+   ```
+
+2. **Crie um usuário administrador:**
+   ```sh
+   cat <<EOF | kubectl apply -f -
+   apiVersion: v1
+   kind: ServiceAccount
+   metadata:
+     name: admin-user
+     namespace: kubernetes-dashboard
+   ---
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: ClusterRoleBinding
+   metadata:
+     name: admin-user
+   roleRef:
+     apiGroup: rbac.authorization.k8s.io
+     kind: ClusterRole
+     name: cluster-admin
+   subjects:
+   - kind: ServiceAccount
+     name: admin-user
+     namespace: kubernetes-dashboard
+   EOF
+   ```
+
+3. **Gere o token de acesso:**
+   ```sh
+   kubectl -n kubernetes-dashboard create token admin-user
+   ```
+
+4. **Inicie o proxy:**
+   ```sh
+   kubectl proxy
+   ```
+
+5. **Acesse no navegador:**
+   ```
+   http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+   ```
+   Faça login usando o token gerado.
+
