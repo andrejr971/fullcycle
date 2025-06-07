@@ -16,10 +16,22 @@ spec:
     spec:
       containers:
         - name: "goserver"
-          image: "andrejr971/hello-go:v4"
+          image: andrejr971/hello-go:v5
           envFrom: # Load environment variables from a ConfigMap
             - configMapRef:
                 name: "goserver-env"
+          
+          volumeMounts: # Mount the ConfigMap as a volume
+            - name: config
+              mountPath: /go/myfamily # Path where the ConfigMap will be mounted in the container
+            
+      volumes:
+        - name: config
+          configMap:
+            name: configmap-family
+            items:
+              - key: members
+                path: family.txt
 
           # env: # Environment variables for the container
           #   - name: "NAME"
