@@ -17,8 +17,19 @@ spec:
       containers:
         - name: "goserver"
           image: "andrejr971/hello-go:v4"
-          env: # Environment variables for the container
-            - name: "NAME"
-              value: "Andre"
-            - name: "AGE"
-              value: "30"
+          envFrom: # Load environment variables from a ConfigMap
+            - configMapRef:
+                name: "goserver-env"
+
+          # env: # Environment variables for the container
+          #   - name: "NAME"
+          #     valueFrom: 
+          #       configMapKeyRef:
+          #         name: "goserver-env"
+          #         key: "NAME"
+                  
+          #   - name: "AGE"
+          #     valueFrom: 
+          #       configMapKeyRef:
+          #         name: "goserver-env"
+          #         key: "AGE"
