@@ -24,6 +24,7 @@ spec:
           volumeMounts: # Mount the ConfigMap as a volume
             - name: config
               mountPath: /go/myfamily # Path where the ConfigMap will be mounted in the container
+              readOnly: true # The volume is read-only
             
       volumes:
         - name: config
