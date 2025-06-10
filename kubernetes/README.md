@@ -30,6 +30,8 @@ kubectl port-forward svc/goserver-service 8000:4000
 ### Para destruir todo o ambiente manualmente:
 
 ```sh
+kubectl delete deploy goserver 
+
 # 1. Deletar o Deployment
 kubectl delete -f k8s/deployment.yaml
 

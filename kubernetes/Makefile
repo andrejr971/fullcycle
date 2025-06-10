@@ -3,18 +3,39 @@ FOLDER=k8s/
 DEPLOYMENT_FILE=deployment.yaml
 SERVICE_FILE=service.yaml
 SERVICE_NAME=goserver-service
+SERVER_NAME=goserver
 
 create-cluster:
 	kind create cluster --name $(CLUSTER_NAME)
 # kind create cluster --name fullcycle
 
+get-cluster:
+	kind get clusters
+# kind get clusters
+
+get-pod:
+	kubectl get pods
+# kubectl get pods
+
 apply-deployment:
 	kubectl apply -f $(FOLDER)$(DEPLOYMENT_FILE)
 # kubectl apply -f k8s/deployment.yaml
+# kubectl apply -f k8s/deployment.yaml && watch -n1 kubectl get pods
+
+destroy-deployment:
+	kubectl delete deployment $(SERVER_NAME)
+# kubectl delete deployment goserver
+
+get-deployment:
+	kubectl get deployment $(FOLDER)$(DEPLOYMENT_FILE)
+# kubectl get deployment goserver
 
 apply-service:
 	kubectl apply -f $(FOLDER)$(SERVICE_FILE)
 # kubectl apply -f k8s/service.yaml
+
+get-service:
+	kubectl get service $(SERVICE_NAME)
 
 apply-secret:
 	kubectl apply -f $(FOLDER)secret.yaml
@@ -26,9 +47,9 @@ apply-secret:
 
 .PHONY: create-cluster apply-deployment
 
-port-forward:
-	kubectl port-forward $(SERVICE_NAME) 4030:4000
-# kubectl port-forward goserver-service 4030:4000
+start-server:
+	kubectl port-forward svc/goserver-service 4030:4000
+# kubectl port-forward svc/goserver-service 4030:4000
 
 destroy-all:
 	kubectl delete -f $(FOLDER)$(DEPLOYMENT_FILE)

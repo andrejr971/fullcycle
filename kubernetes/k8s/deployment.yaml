@@ -16,7 +16,17 @@ spec:
     spec:
       containers:
         - name: "goserver"
-          image: andrejr971/hello-go:v5.2
+          image: andrejr971/hello-go:v5.4
+          livenessProbe: # Health check for the container
+            httpGet:
+              path: /healthz # Path to check for health
+              port: 8000 # Port to check
+            periodSeconds: 5 # How often to perform the check
+            failureThreshold: 3 # Number of failures before marking the container as unhealthy
+            timeoutSeconds: 1 # How long to wait for a response before timing out
+            successThreshold: 1 # Number of successes before marking the container as healthy again
+
+
           envFrom: # Load environment variables from a ConfigMap
             - configMapRef:
                 name: "goserver-env"
@@ -48,3 +58,4 @@ spec:
           #       configMapKeyRef:
           #         name: "goserver-env"
           #         key: "AGE"
+          
