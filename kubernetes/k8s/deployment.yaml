@@ -16,10 +16,12 @@ spec:
     spec:
       containers:
         - name: "goserver"
-          image: andrejr971/hello-go:v5
+          image: andrejr971/hello-go:v5.2
           envFrom: # Load environment variables from a ConfigMap
             - configMapRef:
                 name: "goserver-env"
+            - secretRef:
+                name: "goserver-secret"
           
           volumeMounts: # Mount the ConfigMap as a volume
             - name: config

@@ -1,8 +1,60 @@
+## Comandos Rápidos
+
+### Para iniciar o ambiente manualmente:
+
+```sh
+# 1. Criar o cluster com Kind
+kind create cluster --name fullcycle --config k8s/kind.yaml
+
+# 2. Aplicar o Secret (credenciais)
+kubectl apply -f k8s/secret.yaml
+
+# 3. Aplicar ConfigMaps (se necessário)
+kubectl apply -f k8s/configmap-env.yaml
+kubectl apply -f k8s/configmap-family.yaml
+
+# 4. Aplicar o Deployment
+kubectl apply -f k8s/deployment.yaml
+
+# 5. Aplicar o Service
+kubectl apply -f k8s/service.yaml
+
+# 6. (Opcional) Verificar recursos criados
+kubectl get pods
+kubectl get services
+
+# 7. (Opcional) Fazer port-forward para acessar localmente
+kubectl port-forward svc/goserver-service 8000:4000
+```
+
+### Para destruir todo o ambiente manualmente:
+
+```sh
+# 1. Deletar o Deployment
+kubectl delete -f k8s/deployment.yaml
+
+# 2. Deletar o Service
+kubectl delete -f k8s/service.yaml
+
+# 3. Deletar os ConfigMaps (se aplicou)
+kubectl delete -f k8s/configmap-env.yaml
+kubectl delete -f k8s/configmap-family.yaml
+
+# 4. Deletar o Secret
+kubectl delete -f k8s/secret.yaml
+
+# 5. Deletar o cluster Kind
+kind delete cluster --name fullcycle
+```
+
+---
+
 ## Referência de Comandos Kubernetes
 
 Este documento fornece uma referência concisa para gerenciar clusters e recursos Kubernetes usando os comandos `kind` e `kubectl`.
 
 ---
+
 
 ### Explicação dos Tipos de Objetos
 
@@ -179,4 +231,50 @@ O Kubernetes possui uma interface web oficial chamada **Kubernetes Dashboard**. 
    http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
    ```
    Faça login usando o token gerado.
+
+---
+
+## Documentação de Secrets no Kubernetes
+
+Secrets no Kubernetes são objetos usados para armazenar informações sensíveis, como senhas, tokens ou chaves. Eles permitem que dados confidenciais sejam mantidos separados do código-fonte e das configurações públicas.
+
+### Exemplo de Secret
+
+O arquivo `k8s/secret.yaml` define um Secret do tipo `Opaque` com os dados codificados em base64:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: goserver-secret
+type: Opaque
+data:
+  USER: "d2VzbGV5Cg=="        # valor: wesley
+  PASSWORD: "MTIzNDU2Cg=="    # valor: 123456
+```
+
+### Como aplicar o Secret
+
+```sh
+kubectl apply -f k8s/secret.yaml
+```
+
+### Como usar o Secret em um Deployment
+Você pode referenciar o Secret em seu Deployment para injetar variáveis de ambiente sensíveis nos containers:
+
+```yaml
+        env:
+          - name: USER
+            valueFrom:
+              secretKeyRef:
+                name: goserver-secret
+                key: USER
+          - name: PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: goserver-secret
+                key: PASSWORD
+```
+
+Assim, as variáveis USER e PASSWORD estarão disponíveis no container de forma segura.
 
