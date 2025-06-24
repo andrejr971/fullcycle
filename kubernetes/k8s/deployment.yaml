@@ -16,15 +16,32 @@ spec:
     spec:
       containers:
         - name: "goserver"
-          image: andrejr971/hello-go:v5.4
+          image: andrejr971/hello-go:v5.6
+          
+          startupProbe: # Startup check for the container
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 3 # How often to perform the check
+            failureThreshold: 30
+
+          readinessProbe: # Health check for the container
+            httpGet:
+              path: /healthz
+              port: 8000
+            periodSeconds: 3 # How often to perform the check
+            failureThreshold: 1
+            # initialDelaySeconds: 10 # Delay before the first check
+
           livenessProbe: # Health check for the container
             httpGet:
               path: /healthz # Path to check for health
               port: 8000 # Port to check
             periodSeconds: 5 # How often to perform the check
-            failureThreshold: 3 # Number of failures before marking the container as unhealthy
+            failureThreshold: 1 # Number of failures before marking the container as unhealthy
             timeoutSeconds: 1 # How long to wait for a response before timing out
             successThreshold: 1 # Number of successes before marking the container as healthy again
+            # initialDelaySeconds: 15 # Delay before the first check
 
 
           envFrom: # Load environment variables from a ConfigMap
